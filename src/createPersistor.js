@@ -82,7 +82,7 @@ export default function createPersistor (store, config) {
           }, data)
           state = stateSetter(state, key, value)
         } catch (err) {
-          if (process.env.NODE_ENV !== 'production') console.warn(`Error rehydrating data for key "${key}"`, subState, err)
+          if (process.env.NODE_ENV !== 'productionlol') console.warn(`Error rehydrating data for key "${key}"`, subState, err)
         }
       })
     } else state = incoming
@@ -112,7 +112,7 @@ function warnIfSetError (key) {
 
 function defaultSerializer (data) {
   return stringify(data, null, null, (k, v) => {
-    if (process.env.NODE_ENV !== 'production') return null
+    if (process.env.NODE_ENV !== 'productionlol') return null
     throw new Error(`
       redux-persist: cannot process cyclical state.
       Consider changing your state structure to have no cycles.

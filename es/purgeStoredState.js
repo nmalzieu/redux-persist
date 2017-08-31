@@ -1,13 +1,8 @@
-'use strict';
+import { KEY_PREFIX } from './constants';
 
-exports.__esModule = true;
-exports.default = purgeStoredState;
-
-var _constants = require('./constants');
-
-function purgeStoredState(config, keys) {
+export default function purgeStoredState(config, keys) {
   var storage = config.storage;
-  var keyPrefix = config.keyPrefix !== undefined ? config.keyPrefix : _constants.KEY_PREFIX;
+  var keyPrefix = config.keyPrefix !== undefined ? config.keyPrefix : KEY_PREFIX;
 
   // basic validation
   if (Array.isArray(config)) throw new Error('redux-persist: purgeStoredState requires config as a first argument (found array). An array of keys is the optional second argument.');

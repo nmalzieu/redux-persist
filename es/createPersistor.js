@@ -1,25 +1,9 @@
-'use strict';
+import { KEY_PREFIX, REHYDRATE } from './constants';
+import createAsyncLocalStorage from './defaults/asyncLocalStorage';
+import purgeStoredState from './purgeStoredState';
+import stringify from 'json-stringify-safe';
 
-exports.__esModule = true;
-exports.default = createPersistor;
-
-var _constants = require('./constants');
-
-var _asyncLocalStorage = require('./defaults/asyncLocalStorage');
-
-var _asyncLocalStorage2 = _interopRequireDefault(_asyncLocalStorage);
-
-var _purgeStoredState = require('./purgeStoredState');
-
-var _purgeStoredState2 = _interopRequireDefault(_purgeStoredState);
-
-var _jsonStringifySafe = require('json-stringify-safe');
-
-var _jsonStringifySafe2 = _interopRequireDefault(_jsonStringifySafe);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function createPersistor(store, config) {
+export default function createPersistor(store, config) {
   // defaults
   var serializer = config.serialize === false ? function (data) {
     return data;
@@ -31,7 +15,7 @@ function createPersistor(store, config) {
   var whitelist = config.whitelist || false;
   var transforms = config.transforms || [];
   var debounce = config.debounce || false;
-  var keyPrefix = config.keyPrefix !== undefined ? config.keyPrefix : _constants.KEY_PREFIX;
+  var keyPrefix = config.keyPrefix !== undefined ? config.keyPrefix : KEY_PREFIX;
 
   // pluggable state shape (e.g. immutablejs)
   var stateInit = config._stateInit || {};
@@ -40,7 +24,7 @@ function createPersistor(store, config) {
   var stateSetter = config._stateSetter || defaultStateSetter;
 
   // storage with keys -> getAllKeys for localForage support
-  var storage = config.storage || (0, _asyncLocalStorage2.default)('local');
+  var storage = config.storage || createAsyncLocalStorage('local');
   if (storage.keys && !storage.getAllKeys) {
     storage.getAllKeys = storage.keys;
   }
@@ -129,7 +113,7 @@ function createPersistor(store, config) {
       paused = false;
     },
     purge: function purge(keys) {
-      return (0, _purgeStoredState2.default)({ storage: storage, keyPrefix: keyPrefix }, keys);
+      return purgeStoredState({ storage: storage, keyPrefix: keyPrefix }, keys);
     }
   };
 }
@@ -143,7 +127,7 @@ function warnIfSetError(key) {
 }
 
 function defaultSerializer(data) {
-  return (0, _jsonStringifySafe2.default)(data, null, null, function (k, v) {
+  return stringify(data, null, null, function (k, v) {
     if (process.env.NODE_ENV !== 'productionlol') return null;
     throw new Error('\n      redux-persist: cannot process cyclical state.\n      Consider changing your state structure to have no cycles.\n      Alternatively blacklist the corresponding reducer key.\n      Cycle encounted at key "' + k + '" with value "' + v + '".\n    ');
   });
@@ -155,7 +139,7 @@ function defaultDeserializer(serial) {
 
 function rehydrateAction(data) {
   return {
-    type: _constants.REHYDRATE,
+    type: REHYDRATE,
     payload: data
   };
 }

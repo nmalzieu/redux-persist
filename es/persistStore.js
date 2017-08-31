@@ -1,28 +1,11 @@
-'use strict';
-
-exports.__esModule = true;
-
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-exports.default = persistStore;
+import { REHYDRATE } from './constants';
+import getStoredState from './getStoredState';
+import createPersistor from './createPersistor';
+import setImmediate from './utils/setImmediate';
 
-var _constants = require('./constants');
-
-var _getStoredState = require('./getStoredState');
-
-var _getStoredState2 = _interopRequireDefault(_getStoredState);
-
-var _createPersistor = require('./createPersistor');
-
-var _createPersistor2 = _interopRequireDefault(_createPersistor);
-
-var _setImmediate = require('./utils/setImmediate');
-
-var _setImmediate2 = _interopRequireDefault(_setImmediate);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function persistStore(store) {
+export default function persistStore(store) {
   var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var onComplete = arguments[2];
 
@@ -34,13 +17,13 @@ function persistStore(store) {
   var purgeKeys = null;
 
   // create and pause persistor
-  var persistor = (0, _createPersistor2.default)(store, config);
+  var persistor = createPersistor(store, config);
   persistor.pause();
 
   // restore
   if (shouldRestore) {
-    (0, _setImmediate2.default)(function () {
-      (0, _getStoredState2.default)(config, function (err, restoredState) {
+    setImmediate(function () {
+      getStoredState(config, function (err, restoredState) {
         if (err) {
           complete(err);
           return;
@@ -58,7 +41,7 @@ function persistStore(store) {
         }
       });
     });
-  } else (0, _setImmediate2.default)(complete);
+  } else setImmediate(complete);
 
   function complete(err, restoredState) {
     persistor.resume();
@@ -77,7 +60,7 @@ function rehydrateAction(payload) {
   var error = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
   return {
-    type: _constants.REHYDRATE,
+    type: REHYDRATE,
     payload: payload,
     error: error
   };
